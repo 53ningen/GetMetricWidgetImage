@@ -17,6 +17,9 @@ Parameters:
     Type: String
   NotificationTargetTopicArn:
     Type: String
+  Schedule:
+    Type: String
+    Default: rate(60 minutes)
 
 Resources:
   GetMetricWidgetImageFunctionRole:
@@ -73,3 +76,8 @@ Resources:
           ConfigBucket: !Sub ${ConfigBucket}
           ConfigKeyName: !Sub ${ConfigKey}
           NotificationTargetTopicArn: !Sub ${NotificationTargetTopicArn}
+      Events:
+        Schedule:
+          Type: Schedule
+          Properties:
+            Schedule: !Sub ${Schedule}
