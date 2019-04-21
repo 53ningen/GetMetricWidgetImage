@@ -1,0 +1,21 @@
+log_level: INFO
+message_format: '{"image":"{hex_image}", "title":"{title}"}'
+items:
+  -
+    metrics:
+      -
+        - AWS/Billing
+        - EstimatedCharges
+        - Currency
+        - USD
+        -
+          period: 21600
+          stat: Maximum
+    view: timeSeries
+    width: 1200
+    height: 400
+    stacked: false
+    start: 20160 # minutes
+    timezone: +0900
+    region: us-east-1
+    title: AWS/Billing,EstimatedCharges,Currency,USD

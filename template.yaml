@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  GetMetricWidgetImage
+
+Globals:
+  Function:
+    Timeout: 15
+    Runtime: python3.7
+    MemorySize: 128
+    Handler: app.lambda_handler
+
+Parameters:
+  ConfigBucket:
+    Type: String
+  ConfigKey:
+    Type: String
+  NotificationTargetTopicArn:
+    Type: String
+
+Resources:
+  GetMetricWidgetImageFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - sns:Publish
+            Effect: Allow
+            Resource:
+            - !Sub ${NotificationTargetTopicArn}
+          Version: '2012-10-17'
+        PolicyName: SNSTopicsPublish
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - s3:GetObject
+            Effect: Allow
+            Resource:
+            - !Sub arn:aws:s3:::${ConfigBucket}/${ConfigKey}
+          Version: '2012-10-17'
+        PolicyName: GetS3Object
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - cloudwatch:Get*
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: CloudWatchGet
+
+  GetMetricWidgetImageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/get_metric_widget_image/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt GetMetricWidgetImageFunctionRole.Arn
+      Environment:
+        Variables:
+          ConfigBucket: !Sub ${ConfigBucket}
+          ConfigKeyName: !Sub ${ConfigKey}
+          NotificationTargetTopicArn: !Sub ${NotificationTargetTopicArn}

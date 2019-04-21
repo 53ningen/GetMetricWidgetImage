@@ -1,0 +1,5 @@
+#!/usr/local/bin/bash
+
+. .env
+
+aws s3 cp ./config.yaml s3://$ConfigBucket/$ConfigKey --profile $AWSProfile
