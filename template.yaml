@@ -3,6 +3,20 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   GetMetricWidgetImage
 
+  Getting Amazon CloudWatch Metric Widget Image and Notify Amazon SNS Topic of it
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: GetMetricWidgetImage
+    Description: Getting Amazon CloudWatch Metric Widget Image and Notify Amazon SNS Topic of it
+    Author: 53ningen
+    SpdxLicenseId: MIT
+    Labels: []
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/53ningen/GetMetricWidgetImage
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/53ningen/GetMetricWidgetImage
+
 Globals:
   Function:
     Timeout: 15
