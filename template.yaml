@@ -20,6 +20,9 @@ Parameters:
   Schedule:
     Type: String
     Default: rate(60 minutes)
+  RetentionInDays:
+    Type: Number
+    Default: 7
 
 Resources:
   GetMetricWidgetImageFunctionRole:
@@ -81,3 +84,12 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: !Sub ${Schedule}
+  GetMetricWidgetImageFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        !Join
+          - ''
+          - - '/aws/lambda/'
+            - !Ref GetMetricWidgetImageFunction
+      RetentionInDays: 7

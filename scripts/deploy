@@ -17,4 +17,5 @@ sam deploy --template-file packaged.yaml \
     "Schedule=$Schedule" \
     "ConfigBucket=$ConfigBucket" \
     "ConfigKey=$ConfigKey" \
-    "NotificationTargetTopicArn=$NotificationTargetTopicArn"
+    "NotificationTargetTopicArn=$NotificationTargetTopicArn" \
+    "RetentionInDays=$RetentionInDays"
