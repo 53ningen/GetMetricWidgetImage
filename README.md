@@ -16,3 +16,27 @@ Get Amazon CloudWatch Widget Image and Notify Amazon SNS Topic of it
 2. run `cp config.template.yaml config.yaml` and set up `config.yaml` file
 3. run `./scripts/update_config`
 4. run `./scripts/deploy`
+
+
+### Nested Application
+
+Add the resource below into your SAM template
+
+```yaml
+  GetMetricWidgetImage:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:247601741829:applications/GetMetricWidgetImage
+        SemanticVersion: 1.0.0
+      Parameters:
+        ConfigBucket: YOUR_VALUE
+        ConfigKey: YOUR_VALUE
+        NotificationTargetTopicArn: YOUR_VALUE
+        # RetentionInDays: '7' # Uncomment to override default value
+        # Schedule: 'rate(60 minutes)' # Uncomment to override default value
+```
+
+## Demo
+
+See: `./demo/GetMetricWidgetImageAndNotifySlack`

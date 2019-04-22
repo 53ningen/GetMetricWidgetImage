@@ -1,7 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  GetMetricWidgetImage demo
+  GetMetricWidgetImage demo: GetMetricWidgetImageAndNotifySlack
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: GetMetricWidgetImageAndNotifySlack
+    Description: Getting Amazon CloudWatch Metric Widget Image and Notify Slack Channel of it
+    Author: 53ningen
+    SpdxLicenseId: MIT
+    Labels: []
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/53ningen/GetMetricWidgetImage
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/53ningen/GetMetricWidgetImage
 
 Globals:
   Function:
