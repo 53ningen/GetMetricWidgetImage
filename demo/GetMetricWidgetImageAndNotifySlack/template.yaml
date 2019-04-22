@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  GetMetricWidgetImage demo
+
+Globals:
+  Function:
+    Timeout: 15
+    Runtime: python3.7
+    MemorySize: 128
+    Handler: app.lambda_handler
+    KmsKeyArn: !GetAtt NotifySlackParameterEncryptionKey.Arn
+
+Parameters:
+  IAMUsername:
+    Type: String
+  ConfigBucket:
+    Type: String
+  ConfigKey:
+    Type: String
+  Schedule:
+    Type: String
+    Default: "rate(60 minutes)"
+  RetentionInDays:
+    Type: Number
+    Default: 7
+  SlackVerificationToken:
+    Type: String
+
+Resources:
+  GetMetricWidgetImage:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:247601741829:applications/GetMetricWidgetImage
+        SemanticVersion: 1.0.0
+      Parameters:
+        ConfigBucket: !Sub ${ConfigBucket}
+        ConfigKey: !Sub ${ConfigKey}
+        NotificationTargetTopicArn: !Ref NotifySlackTopic
+        RetentionInDays: !Sub ${RetentionInDays}
+        Schedule: !Sub ${Schedule}
+
+
+  NotifySlackTopicRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+
+  NotifySlackParameterEncryptionKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: false
+      Enabled: true
+      KeyPolicy:
+        # Id: ParameterEncryptionKey
+        Statement:
+        - Action:
+          - kms:Create*
+          - kms:Encrypt
+          - kms:Describe*
+          - kms:Enable*
+          - kms:List*
+          - kms:Put*
+          - kms:Update*
+          - kms:Revoke*
+          - kms:Disable*
+          - kms:Get*
+          - kms:Delete*
+          - kms:ScheduleKeyDeletion
+          - kms:CancelKeyDeletion
+          Effect: Allow
+          Principal:
+            AWS:
+            - Fn::Sub: arn:aws:iam::${AWS::AccountId}:user/${IAMUsername}
+          Resource: '*'
+          Sid: sid01
+        - Action:
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          - kms:DescribeKey
+          Effect: Allow
+          Principal:
+            AWS:
+              - Fn::Sub: arn:aws:iam::${AWS::AccountId}:user/${IAMUsername}
+              - Fn::GetAtt:
+                - NotifySlackTopicRole
+                - Arn
+          Resource: '*'
+          Sid: sid02
+        Version: '2012-10-17'
+  ParameterEncryptionKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/NotifySlackParameterEncryptionKey
+      TargetKeyId:
+        Ref: NotifySlackParameterEncryptionKey
+
+
+  NotifySlackTopic:
+    Type: AWS::SNS::Topic
+  NotifySlackTopicFunctionSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt NotifySlackFunction.Arn
+      Protocol: lambda
+      TopicArn: !Ref NotifySlackTopic
+  NotifySlackTopicFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt NotifySlackFunction.Arn
+        Principal: sns.amazonaws.com
+        SourceArn: !Ref NotifySlackTopic
+
+
+  NotifySlackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: "src/notify_slack/"
+      ReservedConcurrentExecutions: 1
+      Environment:
+        Variables:
+          SlackVerificationToken: !Sub ${SlackVerificationToken}
+  NotifySlackGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+    Properties:
+      LogGroupName:
+        !Join
+          - ''
+          - - '/aws/lambda/'
+            - !Ref NotifySlackFunction
+      RetentionInDays: !Sub ${RetentionInDays}

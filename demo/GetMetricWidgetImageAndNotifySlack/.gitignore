@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+target/
+.python-version
+.mypy_cache/
+*/build/*
+.aws-sam
+packaged.yaml
+
+.env
+config.yaml

@@ -33,7 +33,7 @@ Parameters:
     Type: String
   Schedule:
     Type: String
-    Default: rate(60 minutes)
+    Default: "rate(60 minutes)"
   RetentionInDays:
     Type: Number
     Default: 7

@@ -1,0 +1,21 @@
+#!/usr/local/bin/bash
+
+. ./.env
+
+sam build --use-container
+
+sam package --output-template-file packaged.yaml \
+  --s3-bucket $PackageBucket \
+  --s3-prefix $PackageKeyPrefix \
+  --profile $AWSProfile
+
+sam deploy --template-file packaged.yaml \
+  --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM \
+  --stack-name GetMetricWidgetImage \
+  --profile $AWSProfile \
+  --parameter-overrides \
+    "Schedule=$Schedule" \
+    "ConfigBucket=$ConfigBucket" \
+    "ConfigKey=$ConfigKey" \
+    "IAMUsername=$IAMUsername" \
+    "SlackVerificationToken=$SlackVerificationToken"
